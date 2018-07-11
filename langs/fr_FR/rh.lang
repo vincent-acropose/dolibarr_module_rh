@@ -6,41 +6,4 @@ ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.
 rhSetup = Configuration du module rh
 rhAbout = A propos du module rh
 
-rh=rh
-
-# SETUP
-ParamLabel=Nom du paramètre
-ParamDesc=Une description si besoin
-ParamHelp=Le contenu de l'aide
-
-# MENU
-TopMenurh=rh
-
-# STATUS
-rhStatusDraft=Brouillon (à valider)
-rhStatusValidated=Validée (à accepter)
-rhStatusRefused=Refusée (fermée)
-rhStatusAccepted=Acceptée (fermée)
-
-Draft=Brouillon
-Validate=Validé
-Refused=Refusé
-Accepted=Accepté
-
-# LIST
-rhList=Liste rh
-Norh=(vide)
-
-# CARD
-Newrh=Création rh
-rhCard=Fiche rh
-
-# CARD TPL
-Save=Enregistrer
-CreateDraft=Créer brouillon
-Cancel=Annuler
-Validate=Valider
-Modify=Modifier
-Reopen=Rouvrir
-ToClone=Cloner
-Delete=Supprimer
+rh=RH
