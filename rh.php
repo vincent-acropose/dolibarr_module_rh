@@ -125,7 +125,7 @@ else {
 	print '<tbody>';
 	print '<tr class="liste_titre">';
 	print '<th class="liste_titre" width="25%">Ajouter une visite médicale</th>';
-	print '<th align="right"><input type=date name=date_visit></th>';
+	print '<th align="right"><input type=date name=date_visit placeholder="Date de la visite (jj/mm/aaaa)"></th>';
 	print '<th align="right"><input type=text name=commentaire placeholder=Commentaire : ></th>';
 	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
 	print '</tr>';
@@ -167,7 +167,7 @@ else {
 	print '<tr class="liste_titre">';
 	print '<th class="liste_titre" width="25%">Ajouter une habilitation</th>';
 	print '<th align="right"><input type=text name=intitule placeholder=Intitulé : ></th>';
-	print '<th align="right"><input type=date name=date_hab></th>';
+	print '<th align="right"><input type=date name=date_hab placeholder="Date d\'obtention de l\'habilitation (jj/mm/aaaa)"></th>';
 	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
 	print '</tr>';
 	print '<tr class="oddeven">';

@@ -27,9 +27,24 @@ class Rh extends CommonObject
 		}
 	}
 
+	public function getRowid() {
+		$sql = "SELECT MAX(rowid) as maxrowid FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$result = $this->request($sql);
+
+		return $result->maxrowid + 1;
+	}
+
 	public function set($key, $value, $userId) {
 
-		$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET '.$key.'='.$value.' WHERE fk_user='.$userId;
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE fk_user=".$userId;
+		$result1 = $this->request($sql);
+
+		if ($result1) {
+			$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET '.$key.'='.$value.' WHERE fk_user='.$userId;
+		}
+		else {
+			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.$this->table_element.' (rowid, fk_user, '.$key.') VALUES ('.$this->getRowid().', '.$userId.', '.$value.')';
+		}
 
 		$result = $this->request($sql, 1);
 		return $result;
