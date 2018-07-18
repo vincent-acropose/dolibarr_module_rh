@@ -10,17 +10,30 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.class.php';
+require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 dol_include_once('/rh/class/rh.class.php');
+dol_include_once('/formation/class/formation.class.php');
 
-if(empty($user->rights->rh->read)) accessforbidden();
-
-$langs->load('rh@rh');
-
-$action = GETPOST('action');
 $idUser = GETPOST('id', 'int');
 
 $object = new User($db);
 $object->fetch($idUser);
+
+$formation = new Formation($db);
+$listFormation = $formation->getTrainings(['user' => $object->id, "beginYear" => 2017, "finishYear" => 3000, "statut" => -1]);
+
+if ($object->array_options['options_prod_or_not'] == 1 && empty($user->rights->rh->production)) {
+    accessforbidden();
+}
+
+elseif($object->array_options['options_prod_or_not'] == 2 && empty($user->rights->rh->notProduction)) {
+	accessforbidden();
+}
+
+$langs->load('rh@rh');
+
+$action = GETPOST('action');
 
 $rhManager = new Rh($db);
 
@@ -30,8 +43,16 @@ $habilitations = $rhManager->getHabilitations($idUser);
 // Action
 switch ($action) {
 	case 'edit':
-		$salary = GETPOST('salary');
-		if($rhManager->set('salary', $salary, $object->id)) {
+		$values = [];
+		$values['salary'] = GETPOST('salary');
+		$values['address'] = GETPOST('address');
+		$values['zip'] = GETPOST('zip');
+		$values['city'] = GETPOST('city');
+		$values['contact'] = GETPOST('contact');
+		$values['telContact1'] = GETPOST('telContact1');
+		$values['telContact2'] = GETPOST('telContact2');
+
+		if($rhManager->set($values, $object->id)) {
 			header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 			exit;
 		}
@@ -54,10 +75,12 @@ switch ($action) {
 		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 
 	case 'new_hab':
+		$numero = GETPOST('numero');
 		$date = GETPOST('date_hab');
+		$datefin = GETPOST('date_hab_fin');
 		$intitule = GETPOST('intitule');
 
-		$rhManager->setHab($date, $intitule, $idUser);
+		$rhManager->setHab($numero, $date, $datefin, $intitule, $idUser);
 
 	case 'del_hab':
 		$hab = GETPOST('hab');
@@ -71,6 +94,7 @@ switch ($action) {
 llxHeader('',$langs->trans("RHCard"));
 $head = user_prepare_head($object);
 $picto = 'user';
+$form=new Form($db);
 
 dol_fiche_head($head, 'rh', $langs->trans("User"), -1, $picto);
 
@@ -81,6 +105,12 @@ if ($action == "modify") {
 
 	// Salary
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('Salary') . '</td><td><input type=text name="salary" value=' . $rhManager->get("salary", $object->id)->salary . '></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Address') . '</td><td><input type=text name="address" value="' . $rhManager->get("address", $object->id)->address . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Zip') . '</td><td><input type=text name="zip" value=' . $rhManager->get("zip", $object->id)->zip . '></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('City') . '</td><td><input type=text name="city" value="' . $rhManager->get("city", $object->id)->city . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Contact') . '</td><td><input type=text name="contact" value="' . $rhManager->get("contact", $object->id)->contact . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelContact1') . '</td><td><input type=text name="telContact1" value="' . $rhManager->get("telContact1", $object->id)->telContact1 . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelContact2') . '</td><td><input type=text name="telContact2" value="' . $rhManager->get("telContact2", $object->id)->telContact2 . '"></td></tr>';
 
 	print "</table>";
 	print '<div class="center">';
@@ -97,15 +127,59 @@ else {
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
-	print '<div class="underbanner clearboth"></div>';
-	print '<table class="border tableforfield" width="100%">';
+	print "<div class='underbanner clearboth'></div>";
+	print '<table class="border tableforfield" width="90%">';
 	print '<tbody>';
 	print '<tr>';
-
-	print '<td class="titlefield">'.$langs->trans('Salary').'</td>';
-	print '<td>'.$rhManager->get("salary", $object->id)->salary.'</td>';
-
+	print '<td class="titlefield">Genre</td>';
+	print '<td>'.$langs->trans($object->gender).'</td>';
 	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Date d\'embauche</td>';
+	print '<td>'.date('d/m/Y', $object->dateemployment).'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Date de naissance</td>';
+	print '<td>'.date('d/m/Y', strtotime($object->array_options['options_DDN'])).'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Situation de famille</td>';
+	print '<td>'.$object->array_options['options_SIT_FAM'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Nombre d\'enfant à charge</td>';
+	print '<td>'.$object->array_options['options_NB_ENF_CHARGE'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Horaire contractuelle</td>';
+	print '<td>'.$object->array_options['options_HORAIRE'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Statut</td>';
+	print '<td>'.$object->array_options['options_STATUT'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Niveau de classification</td>';
+	print '<td>'.$object->array_options['options_NIVEAU'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Contrat</td>';
+	print '<td>'.$object->array_options['options_CONTRAT'].'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">Fonction</td>';
+	print '<td>'.$object->array_options['options_FONCTION'].'</td>';
+	print '</tr>';
+
 	print '</tbody>';
 	print '</table>';
 
@@ -115,7 +189,55 @@ else {
 	print '</div>';
 	print '</div>';
 
-	print '<table>';
+    print '</div>';
+
+    print '<div class="fichehalfright">';
+    print "<div class='underbanner clearboth'></div>";
+
+	print '<table class="border tableforfield" width="90%">';
+	print '<tbody>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Salary').'</td>';
+	print '<td>'.$rhManager->get("salary", $object->id)->salary.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Address').'</td>';
+	print '<td>'.$rhManager->get("address", $object->id)->address.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Zip').'</td>';
+	print '<td>'.$rhManager->get("zip", $object->id)->zip.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('City').'</td>';
+	print '<td>'.$rhManager->get("city", $object->id)->city.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Contact').'</td>';
+	print '<td>'.$rhManager->get("contact", $object->id)->contact.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('TelContact1').'</td>';
+	print '<td>'.$rhManager->get("telContact1", $object->id)->telContact1.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('TelContact2').'</td>';
+	print '<td>'.$rhManager->get("telContact2", $object->id)->telContact2.'</td>';
+	print '</tr>';
+
+	print '</tbody>';
+	print '</table>';
+
+	print '</div>';
+
+	print '<table width="100%">';
 	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Visites médicales</div></td></tr></tbody>';
 	print '</table>';
 
@@ -125,10 +247,17 @@ else {
 	print '<tbody>';
 	print '<tr class="liste_titre">';
 	print '<th class="liste_titre" width="25%">Ajouter une visite médicale</th>';
-	print '<th align="right"><input type=date name=date_visit placeholder="Date de la visite (jj/mm/aaaa)"></th>';
+	print '<th align="right"><input title="Date de passage de la visite médicale" id="date_visit" name="date_visit" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
 	print '<th align="right"><input type=text name=commentaire placeholder=Commentaire : ></th>';
 	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
 	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Date de la visite</th>';
+	print '<th class="liste_titre">Commentaire</th>';
+	print '<th align="right" colspan=2></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
 
 	if ($medVisits->num_rows) {
 
@@ -137,11 +266,11 @@ else {
 			print '<td>';
 			print date("d/m/Y", strtotime($oneMed['date_visit']));
 			print '</td>';
-			print '<td colspan=2>';
+			print '<td>';
 			print $oneMed['commentaire'];
 			print '</td>';
-			print '<td align="right">';
-			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_med&med='.$oneMed['rowid'].'"><img src="/dolibarr/htdocs/theme/eldy/img/delete.png" alt="" title="Supprimer la visite" class="pictodelete"></a>';
+			print '<td align="right" colspan=2>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_med&med='.$oneMed['rowid'].'">'.img_delete().'</a>';
 			print '</td>';
 			print '</tr>';
 		}
@@ -166,9 +295,20 @@ else {
 	print '<tbody>';
 	print '<tr class="liste_titre">';
 	print '<th class="liste_titre" width="25%">Ajouter une habilitation</th>';
+	print '<th align="right"><input type=text name=numero placeholder=Numéro : ></th>';
 	print '<th align="right"><input type=text name=intitule placeholder=Intitulé : ></th>';
-	print '<th align="right"><input type=date name=date_hab placeholder="Date d\'obtention de l\'habilitation (jj/mm/aaaa)"></th>';
+	print '<th align="right"><input title="Date d\'obtention de l\'habilitation" id="date_hab" name="date_hab" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
+	print '<th align="right"><input title="Date de fin de l\'habilitation" id="date_hab_fin" name="date_hab_fin" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
 	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Date de début</th>';
+	print '<th class="liste_titre">Numéro</th>';
+	print '<th class="liste_titre">Libelle</th>';
+	print '<th class="liste_titre">Date de fin</th>';
+	print '<th align="right" colspan=3></th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 
@@ -179,11 +319,17 @@ else {
 			print '<td>';
 			print date("d/m/Y", strtotime($habilitation['date_hab']));
 			print '</td>';
-			print '<td colspan=2>';
+			print '<td>';
+			print $habilitation['numero'];
+			print '</td>';
+			print '<td>';
 			print $habilitation['label'];
 			print '</td>';
-			print '<td align="right">';
-			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_hab&hab='.$habilitation['rowid'].'"><img src="/dolibarr/htdocs/theme/eldy/img/delete.png" alt="" title="Supprimer l\'habilitation" class="pictodelete"></a>';
+			print '<td>';
+			print date("d/m/Y", strtotime($habilitation['date_fin']));
+			print '</td>';
+			print '<td align="right" colspan=2>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_hab&hab='.$habilitation['rowid'].'">'.img_delete().'</a>';
 			print '</td>';
 			print '</tr>';
 		}
@@ -200,6 +346,58 @@ else {
 	print '</tbody>';
 	print '</table>';
 	print '</form>';
+
+	print '<table>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Formations</div></td></tr></tbody>';
+	print '</table>';
+
+	print '<table class="noborder" width="100%">';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Référence</th>';
+	print '<th class="liste_titre">Libelle</th>';
+	print '<th class="liste_titre">Fournisseur</th>';
+	print '<th class="liste_titre">Date de Début</th>';
+	print '<th class="liste_titre">Date de Fin</th>';
+	print '</tr>';
+
+	print '<tr class="oddeven">';
+
+	if (!empty($listFormation['year'])) {
+
+		foreach ($listFormation['year'] as $formation) {
+			$fournisseur = new Fournisseur($db);
+			$fournisseur->fetch($formation->fk_product_fournisseur_price->fourn_id);
+
+			print '<tr class="oddeven">';
+			print '<td>';
+			print $formation->getNomUrl(1);
+			print '</td>';
+			print '<td>';
+			print $formation->label;
+			print '</td>';
+			print '<td>';
+			print $fournisseur->getNomUrl(1);
+			print '</td>';
+			print '<td>';
+			print $formation->dated;
+			print '</td>';
+			print '<td>';
+			print $formation->datef;
+			print '</td>';
+			print '</tr>';
+		}
+
+	}
+
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=5>-- Aucune formation enregistrée --</td>';
+		print '</tr>';
+	}
+
+	print '</tr>';
+	print '</table>';
 
 	print '</div>';
 	print '</div>';

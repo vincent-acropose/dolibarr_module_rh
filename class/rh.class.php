@@ -23,7 +23,7 @@ class Rh extends CommonObject
 			return $result;
 		}
 		else {
-			return -1;
+			return 0;
 		}
 	}
 
@@ -34,17 +34,69 @@ class Rh extends CommonObject
 		return $result->maxrowid + 1;
 	}
 
-	public function set($key, $value, $userId) {
+	public function set($values, $userId) {
 
 		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE fk_user=".$userId;
 		$result1 = $this->request($sql);
 
-		if ($result1) {
-			$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET '.$key.'='.$value.' WHERE fk_user='.$userId;
+		if (!$result1) {
+			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.$this->table_element.' (rowid, fk_user) VALUES ('.$this->getRowid().', '.$userId.')';
+			$this->request($sql, 1);
 		}
+
+		if (is_array($values)) {
+			$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET';
+
+			if ($values["salary"]) {
+				$sql .= ' salary="'.$values['salary'].'"';
+			}
+			else {
+				$sql .= ' salary=NULL';
+			}
+			if ($values["address"]) {
+				$sql .= ', address="'.$values['address'].'"';
+			}
+			else {
+				$sql .= ', address=NULL';
+			}
+			if ($values["zip"]) {
+				$sql .= ', zip="'.$values['zip'].'"';
+			}
+			else {
+				$sql .= ', zip=NULL';
+			}
+			if ($values["city"]) {
+				$sql .= ', city="'.$values['city'].'"';
+			}
+			else {
+				$sql .= ', city=NULL';
+			}
+			if ($values["contact"]) {
+				$sql .= ', contact="'.$values['contact'].'"';
+			}
+			else {
+				$sql .= ', contact=NULL';
+			}
+			if ($values["telContact1"]) {
+				$sql .= ', telContact1="'.$values['telContact1'].'"';
+			}
+			else {
+				$sql .= ', telContact1=NULL';
+			}
+			if ($values["telContact2"]) {
+				$sql .= ', telContact2="'.$values['telContact2'].'"';
+			}
+			else {
+				$sql .= ', telContact2=NULL';
+			}
+			$sql .= ' WHERE fk_user='.$userId;
+		}
+
 		else {
-			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.$this->table_element.' (rowid, fk_user, '.$key.') VALUES ('.$this->getRowid().', '.$userId.', '.$value.')';
+			return -1;
 		}
+
+		var_dump($sql);
 
 		$result = $this->request($sql, 1);
 		return $result;
@@ -52,28 +104,28 @@ class Rh extends CommonObject
 	}
 
 	public function getMed($userId) {
-		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_medicale." WHERE fk_user=".$userId;
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_medicale." WHERE fk_user=".$userId." ORDER BY date_visit DESC";
 
 		$result = $this->request($sql, 0, "*");
 		return $result;
 	}
 
 	public function getHabilitations($userId) {
-		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_habiliations." WHERE fk_user=".$userId;
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_habiliations." WHERE fk_user=".$userId." ORDER BY date_hab DESC";
 
 		$result = $this->request($sql, 0, "*");
 		return $result;
 	}
 
 	public function setMed($date, $commentaire, $userId) {
-		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_medicale.' (fk_user, date_visit, commentaire) VALUES ('.$userId.', "'.$date.'", "'.$commentaire.'")';
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_medicale.' (fk_user, date_visit, commentaire) VALUES ('.$userId.', "'.date("Y-m-d", strtotime($date)).'", "'.$commentaire.'")';
 
 		$result = $this->request($sql, 1);
 		return $result;
 	}
 
-	public function setHab($date, $intitule, $userId) {
-		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_habiliations.' (fk_user, date_hab, label) VALUES ('.$userId.', "'.$date.'", "'.$intitule.'")';
+	public function setHab($numero, $date, $datefin, $intitule, $userId) {
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_habiliations.' (numero, fk_user, date_hab, date_fin, label) VALUES ("'.$numero.'", '.$userId.', "'.$date.'", "'.$datefin.'", "'.$intitule.'")';
 		
 		$result = $this->request($sql, 1);
 		return $result;

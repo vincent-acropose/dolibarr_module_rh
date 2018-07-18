@@ -7,3 +7,9 @@ rhSetup = Configuration du module rh
 rhAbout = A propos du module rh
 
 rh=RH
+Salary=Salaire
+man=Homme
+woman=Femme
+City=Ville
+TelContact1=Téléphone 1
+TelContact2=Téléphone 2
