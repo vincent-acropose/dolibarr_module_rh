@@ -96,8 +96,6 @@ class Rh extends CommonObject
 			return -1;
 		}
 
-		var_dump($sql);
-
 		$result = $this->request($sql, 1);
 		return $result;
 
