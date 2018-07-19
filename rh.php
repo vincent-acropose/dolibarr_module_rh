@@ -39,6 +39,7 @@ $rhManager = new Rh($db);
 
 $medVisits = $rhManager->getMed($idUser);
 $habilitations = $rhManager->getHabilitations($idUser);
+$entretiens = $rhManager->getEntretiens($idUser);
 
 // Action
 switch ($action) {
@@ -86,6 +87,17 @@ switch ($action) {
 		$hab = GETPOST('hab');
 		$rhManager->delHab($hab);
 
+	case 'new_ent':
+		$date = GETPOST('date_ent');
+		$commentaire = GETPOST('commentaire');
+
+		$rhManager->setEnt($date, $commentaire, $idUser);
+
+	case 'del_ent':
+		$ent = GETPOST('ent');
+		$rhManager->delEnt($ent);
+
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 
 	header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 }
@@ -338,6 +350,57 @@ else {
 	else {
 		print '<tr class="oddeven">';
 		print '<td colspan=4>-- Aucune habilitation enregistrée --</td>';
+		print '</tr>';
+	}
+
+	print '</td>';
+	print '</tr>';
+	print '</tbody>';
+	print '</table>';
+	print '</form>';
+
+	print '<table>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Entretiens annuelles</div></td></tr></tbody>';
+	print '</table>';
+
+	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
+	print '<input name="action" value="new_ent" type="hidden"><table class="noborder" width="100%">';
+	print '<tbody>';
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="25%">Ajouter un entretien</th>';
+	print '<th align="right"><input title="Date de l\'entretien" id="date_ent" name="date_ent" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
+	print '<th align="right"><input type=text name=commentaire placeholder=Commentaires : ></th>';
+	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Date de l\'entretien</th>';
+	print '<th class="liste_titre">Commentaire</th>';
+	print '<th align="right" colspan=2></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	if ($entretiens->num_rows) {
+
+		foreach ($entretiens as $entretien) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($entretien['date_ent']));
+			print '</td>';
+			print '<td>';
+			print $entretien['commentaire'];
+			print '</td>';
+			print '<td align="right" colspan=2>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_ent&ent='.$entretien['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
+			print '</tr>';
+		}
+	}
+
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>-- Aucun entretien enregistré --</td>';
 		print '</tr>';
 	}
 

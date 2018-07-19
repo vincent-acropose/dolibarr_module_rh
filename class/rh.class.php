@@ -8,6 +8,7 @@ class Rh extends CommonObject
 	public $table_element='rh';
 	public $table_medicale="rh_med";
 	public $table_habiliations='rh_hab';
+	public $table_entretiens='rh_ent';
 
 	public function __construct($db)
 	{
@@ -115,6 +116,13 @@ class Rh extends CommonObject
 		return $result;
 	}
 
+	public function getEntretiens($userId) {
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_entretiens." WHERE fk_user=".$userId." ORDER BY date_ent DESC";
+
+		$result = $this->request($sql, 0, "*");
+		return $result;
+	}
+
 	public function setMed($date, $commentaire, $userId) {
 		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_medicale.' (fk_user, date_visit, commentaire) VALUES ('.$userId.', "'.date("Y-m-d", strtotime($date)).'", "'.$commentaire.'")';
 
@@ -129,6 +137,12 @@ class Rh extends CommonObject
 		return $result;
 	}
 
+	public function setEnt($date, $commentaire, $idUser) {
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_entretiens.' (date_ent, commentaire, fk_user) VALUES ("'.$date.'", "'.$commentaire.'", '.$idUser.')';
+		$result = $this->request($sql, 1);
+		return $result;
+	}
+
 	public function delMed($idMed) {
 		$sql = "DELETE FROM ".MAIN_DB_PREFIX.$this->table_medicale.' WHERE rowid='.$idMed;
 
@@ -138,6 +152,13 @@ class Rh extends CommonObject
 
 	public function delHab($idHab) {
 		$sql = "DELETE FROM ".MAIN_DB_PREFIX.$this->table_habiliations.' WHERE rowid='.$idHab;
+
+		$result = $this->request($sql, 1);
+		return $result;
+	}
+
+	public function delEnt($idEnt) {
+		$sql = "DELETE FROM ".MAIN_DB_PREFIX.$this->table_entretiens.' WHERE rowid='.$idEnt;
 
 		$result = $this->request($sql, 1);
 		return $result;
