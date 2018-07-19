@@ -443,10 +443,10 @@ else {
 			print $fournisseur->getNomUrl(1);
 			print '</td>';
 			print '<td>';
-			print $formation->dated;
+			print date("d/m/y", strtotime($formation->dated));
 			print '</td>';
 			print '<td>';
-			print $formation->datef;
+			print date("d/m/y", strtotime($formation->datef));
 			print '</td>';
 			print '</tr>';
 		}
