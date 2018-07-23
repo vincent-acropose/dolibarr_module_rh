@@ -1,6 +1,7 @@
 <?php
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
+require_once DOL_DOCUMENT_ROOT.'/user/class/user.class.php';
 
 class Rh extends CommonObject
 {
@@ -54,11 +55,23 @@ class Rh extends CommonObject
 			else {
 				$sql .= ' salary=NULL';
 			}
-			if ($values["address"]) {
-				$sql .= ', address="'.$values['address'].'"';
+			if ($values["salary_brut"]) {
+				$sql .= ', salary_brut="'.$values['salary_brut'].'"';
 			}
 			else {
-				$sql .= ', address=NULL';
+				$sql .= ', salary_brut=NULL';
+			}
+			if ($values["address1"]) {
+				$sql .= ', address1="'.$values['address1'].'"';
+			}
+			else {
+				$sql .= ', address1=NULL';
+			}
+			if ($values["address2"]) {
+				$sql .= ', address2="'.$values['address2'].'"';
+			}
+			else {
+				$sql .= ', address2=NULL';
 			}
 			if ($values["zip"]) {
 				$sql .= ', zip="'.$values['zip'].'"';
@@ -71,6 +84,18 @@ class Rh extends CommonObject
 			}
 			else {
 				$sql .= ', city=NULL';
+			}
+			if ($values["telFixe"]) {
+				$sql .= ', telFixe="'.$values['telFixe'].'"';
+			}
+			else {
+				$sql .= ', telFixe=NULL';
+			}
+			if ($values["telPortable"]) {
+				$sql .= ', telPortable="'.$values['telPortable'].'"';
+			}
+			else {
+				$sql .= ', telPortable=NULL';
 			}
 			if ($values["contact"]) {
 				$sql .= ', contact="'.$values['contact'].'"';
@@ -89,6 +114,12 @@ class Rh extends CommonObject
 			}
 			else {
 				$sql .= ', telContact2=NULL';
+			}
+			if ($values["present"]) {
+				$sql .= ', present="'.$values['present'].'"';
+			}
+			else {
+				$sql .= ', present=NULL';
 			}
 			$sql .= ' WHERE fk_user='.$userId;
 		}
@@ -170,6 +201,52 @@ class Rh extends CommonObject
 		is_null($id) ? $id = 1 : $id = $id+1;
 
 		return $id;
+	}
+
+	public function makeCsv($type) {
+		$sql = 'SELECT * FROM '.MAIN_DB_PREFIX.$this->table_element;
+		$usersRh = $this->request($sql, 0, "*");
+		$newUser = new User($this->db);
+		
+		switch ($type) {
+
+			case '1':
+				$contains = "Contrat;Nom;Prénom;Sexe;Adresse1;Adresse2;CP;Ville;Date d'embauche;Ancienneté;Fonction;Niveau;Status;Date de naissance;age\n";
+				foreach ($usersRh as $userRh) {
+					if ($userRh['present'] == "Oui") {
+						$newUser->fetch($userRh['fk_user']);
+
+						$anciennete =  strtotime(date("Y-m-d")) - strtotime(date("Y-m-d", $newUser->dateemployment));
+						$jourAnciennete = (int)($anciennete/86400);
+
+						$age = strtotime(date("Y-m-d")) - strtotime(date("d/m/Y", strtotime($newUser->array_options['options_DDN'])));
+						$ageYear = (int)($age/31536000);
+
+						$contains .= $newUser->array_options['options_CONTRAT'];
+						$contains .= ";".$newUser->lastname;
+						$contains .= ";".$newUser->firstname;
+						$contains .= ";".$newUser->gender;
+						$contains .= ";".$userRh['address1'];
+						$contains .= ";".$userRh['address2'];
+						$contains .= ";".$userRh['zip'];
+						$contains .= ";".$userRh['city'];
+						$contains .= ";".date('d/m/Y', $newUser->dateemployment);
+						$contains .= ";".$jourAnciennete." jours";
+						$contains .= ";".$newUser->array_options['options_FONCTION'];
+						$contains .= ";".$newUser->array_options['options_NIVEAU'];
+						$contains .= ";".$newUser->array_options['options_STATUT'];
+						$contains .= ";".date("d/m/Y", strtotime($newUser->array_options['options_DDN']));
+						$contains .= ";".$ageYear." ans";
+						$contains .= "\n";
+					}
+				}
+
+				$f = fopen(DOL_DATA_ROOT."/rh/liste_utilisateurs.csv", "w");
+				fwrite($f, $contains);
+				fclose($f);
+
+				break;
+		}
 	}
 
 	/* ----------------------------- */

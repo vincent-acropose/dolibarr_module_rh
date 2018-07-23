@@ -90,11 +90,11 @@ class modrh extends DolibarrModules
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@rh')) // Set here all workflow context managed by module
 		//                        );
-		$this->module_parts = array();
+		$this->module_parts = array('hooks'=>array('userlist'));
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/rh/temp");
-		$this->dirs = array();
+		$this->dirs = array("/rh");
 
 		// Config pages. Put here list of php page, stored into rh/admin directory, to use to setup module.
 		$this->config_page_url = array("rh_setup.php@rh");
@@ -205,14 +205,6 @@ class modrh extends DolibarrModules
 		$this->rights[$r][4] = 'displayMenu';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
-/*		
-		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'rh_write';	// Permission label
-		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$r++;
-*/
 
 		// Main menu entries
 		$this->menu = array();			// List of menus to add
@@ -251,22 +243,6 @@ class modrh extends DolibarrModules
 		// $r++;
 		
 /*
-		$this->menu[$r]=array(	
-			'fk_menu'=>0,			                // Put 0 if this is a top menu
-			'type'=>'top',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenurh'),
-			'mainmenu'=>'rh',
-			'leftmenu'=>'',
-			'url'=>'/rh/list.php',
-			'langs'=>'rh@rh',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>100+$r,
-			'enabled'=>'$conf->rh->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->rh->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2
-		);
-		$r++;
-
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=rh',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry

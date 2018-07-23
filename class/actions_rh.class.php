@@ -28,6 +28,7 @@
  */
 class Actionsrh
 {
+
 	/**
 	 * @var array Hook results. Propagated to $hookmanager->resArray for later reuse
 	 */
@@ -59,14 +60,10 @@ class Actionsrh
 	 * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
 	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
 	 */
-	function doActions($parameters, &$object, &$action, $hookmanager)
+	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
 		$error = 0; // Error counter
 		$myvalue = 'test'; // A result value
-
-		print_r($parameters);
-		echo "action: " . $action;
-		print_r($object);
 
 		if (in_array('somecontext', explode(':', $parameters['context'])))
 		{
@@ -84,5 +81,18 @@ class Actionsrh
 			$this->errors[] = 'Error message';
 			return -1;
 		}
+	}
+
+	public function printFieldListFooter($parameters, &$object, &$action, $hookmanager) {
+
+		print '</tbody></table>';
+		print '<table class="tagtable liste"><tbody>';
+		print '<tr class="liste_titre">';
+		print '<th class="liste_titre"><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_1><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des utilisateurs</a></th>';
+		//print '<th class="liste_titre"><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_2><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des habilitations</a></th>';
+		print '</tr>';
+
+		return 0;
+
 	}
 }

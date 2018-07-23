@@ -45,10 +45,15 @@ $entretiens = $rhManager->getEntretiens($idUser);
 switch ($action) {
 	case 'edit':
 		$values = [];
+		$values['present'] = GETPOST('present');
 		$values['salary'] = GETPOST('salary');
-		$values['address'] = GETPOST('address');
+		$values['salary_brut'] = GETPOST('salary_brut');
+		$values['address1'] = GETPOST('address1');
+		$values['address2'] = GETPOST('address2');
 		$values['zip'] = GETPOST('zip');
 		$values['city'] = GETPOST('city');
+		$values['telFixe'] = GETPOST('telFixe');
+		$values['telPortable'] = GETPOST('telPortable');
 		$values['contact'] = GETPOST('contact');
 		$values['telContact1'] = GETPOST('telContact1');
 		$values['telContact2'] = GETPOST('telContact2');
@@ -99,6 +104,16 @@ switch ($action) {
 
 		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 
+	case 'getCsv_1':
+		$rhManager->makeCsv(1);
+
+		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=liste_utilisateurs.csv");
+		break;
+
+	case 'getCsv_2':
+		exit("2");
+		break;
+
 	header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 }
 
@@ -116,10 +131,15 @@ if ($action == "modify") {
 	print '<table class="border" width="100%">';
 
 	// Salary
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Present') . '</td><td><select name=present><option value=Oui>Oui</option><option value=Non>Non</option></select></td>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('Salary') . '</td><td><input type=text name="salary" value=' . $rhManager->get("salary", $object->id)->salary . '></td></tr>';
-	print '<tr><td class="titlefieldcreate">' . $langs->trans('Address') . '</td><td><input type=text name="address" value="' . $rhManager->get("address", $object->id)->address . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('SalaryMonth') . '</td><td><input type=text name="salary_brut" value=' . $rhManager->get("salary_brut", $object->id)->salary_brut . '></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Address1') . '</td><td><input type=text name="address1" value="' . $rhManager->get("address1", $object->id)->address1 . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('Address2') . '</td><td><input type=text name="address2" value="' . $rhManager->get("address2", $object->id)->address2 . '"></td></tr>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('Zip') . '</td><td><input type=text name="zip" value=' . $rhManager->get("zip", $object->id)->zip . '></td></tr>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('City') . '</td><td><input type=text name="city" value="' . $rhManager->get("city", $object->id)->city . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelFixe') . '</td><td><input type=text name="telFixe" value="' . $rhManager->get("telFixe", $object->id)->telFixe . '"></td></tr>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelPortable') . '</td><td><input type=text name="telPortable" value="' . $rhManager->get("telPortable", $object->id)->telPortable . '"></td></tr>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('Contact') . '</td><td><input type=text name="contact" value="' . $rhManager->get("contact", $object->id)->contact . '"></td></tr>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelContact1') . '</td><td><input type=text name="telContact1" value="' . $rhManager->get("telContact1", $object->id)->telContact1 . '"></td></tr>';
 	print '<tr><td class="titlefieldcreate">' . $langs->trans('TelContact2') . '</td><td><input type=text name="telContact2" value="' . $rhManager->get("telContact2", $object->id)->telContact2 . '"></td></tr>';
@@ -152,6 +172,16 @@ else {
 	print '<td>'.date('d/m/Y', $object->dateemployment).'</td>';
 	print '</tr>';
 
+	$anciennete =  strtotime(date("Y-m-d")) - strtotime(date("Y-m-d", $object->dateemployment));
+	$jour = (int)($anciennete/86400);
+	$année = (int)($jour/31536000);
+	$jour = $jour - 365*$annee;
+
+	print '<tr>';
+	print '<td class="titlefield">Ancienneté</td>';
+	print '<td>'.$année." ".$langs->trans('years')." ".$jour.' '.$langs->trans('days').'</td>';
+	print '</tr>';
+
 	print '<tr>';
 	print '<td class="titlefield">Date de naissance</td>';
 	print '<td>'.date('d/m/Y', strtotime($object->array_options['options_DDN'])).'</td>';
@@ -168,7 +198,7 @@ else {
 	print '</tr>';
 
 	print '<tr>';
-	print '<td class="titlefield">Horaire contractuelle</td>';
+	print '<td class="titlefield">Horaire contractuel</td>';
 	print '<td>'.$object->array_options['options_HORAIRE'].'</td>';
 	print '</tr>';
 
@@ -210,13 +240,28 @@ else {
 	print '<tbody>';
 
 	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Present').'</td>';
+	print '<td>'.$rhManager->get("present", $object->id)->present.'</td>';
+	print '</tr>';
+
+	print '<tr>';
 	print '<td class="titlefield">'.$langs->trans('Salary').'</td>';
 	print '<td>'.$rhManager->get("salary", $object->id)->salary.'</td>';
 	print '</tr>';
 
 	print '<tr>';
-	print '<td class="titlefield">'.$langs->trans('Address').'</td>';
-	print '<td>'.$rhManager->get("address", $object->id)->address.'</td>';
+	print '<td class="titlefield">'.$langs->trans('SalaryMonth').'</td>';
+	print '<td>'.$rhManager->get("salary_brut", $object->id)->salary_brut.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Address1').'</td>';
+	print '<td>'.$rhManager->get("address1", $object->id)->address1.'</td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('Address2').'</td>';
+	print '<td>'.$rhManager->get("address2", $object->id)->address2.'</td>';
 	print '</tr>';
 
 	print '<tr>';
@@ -227,6 +272,18 @@ else {
 	print '<tr>';
 	print '<td class="titlefield">'.$langs->trans('City').'</td>';
 	print '<td>'.$rhManager->get("city", $object->id)->city.'</td>';
+	print '</tr>';
+
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('TelFixe').'</td>';
+	print '<td>'.$rhManager->get("telFixe", $object->id)->telFixe.'</td>';
+	print '</tr>';
+
+
+	print '<tr>';
+	print '<td class="titlefield">'.$langs->trans('TelPortable').'</td>';
+	print '<td>'.$rhManager->get("telPortable", $object->id)->telPortable.'</td>';
 	print '</tr>';
 
 	print '<tr>';
