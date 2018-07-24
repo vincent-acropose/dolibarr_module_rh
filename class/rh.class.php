@@ -371,6 +371,21 @@ class Rh extends CommonObject
 				fclose($f);
 
 				break;
+
+			case '4':
+				$contains = "Date d'attribution de la prime;Montant\n";
+
+				$primes = $this->getPrimes((int)$userId);
+
+				foreach ($primes as $prime) {
+					$contains .= $prime['date_prime'].";".$prime['montant']." €\n";
+				}
+
+				$f = fopen(DOL_DATA_ROOT."/rh/primes.csv", "w");
+				fwrite($f, $contains);
+				fclose($f);
+
+				break;
 		}
 	}
 

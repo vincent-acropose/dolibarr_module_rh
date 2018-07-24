@@ -155,6 +155,12 @@ switch ($action) {
 		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=visites.csv");
 		break;
 
+	case 'getCsv_4':
+		$rhManager->makeCsv(4, $user, $idUser);
+
+		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=primes.csv");
+		break;
+
 }
 
 // Vue
@@ -212,14 +218,13 @@ else {
 	print '<td>'.date('d/m/Y', $object->dateemployment).'</td>';
 	print '</tr>';
 
-	$anciennete =  strtotime(date("Y-m-d")) - strtotime(date("Y-m-d", $object->dateemployment));
-	$jour = (int)($anciennete/86400);
-	$année = (int)($jour/31536000);
-	$jour = $jour - 365*$annee;
+	$anciennete = strtotime(date("Y-m-d")) - strtotime($object->array_options['options_DDA']);
+	$jour = (int)(($anciennete/86400)%365);
+	$annee = (int)($anciennete/31536000);
 
 	print '<tr>';
 	print '<td class="titlefield">Ancienneté</td>';
-	print '<td>'.$année." ".$langs->trans('years')." ".$jour.' '.$langs->trans('days').'</td>';
+	print '<td>'.$annee." ".$langs->trans('years')." ".$jour.' '.$langs->trans('days').'</td>';
 	print '</tr>';
 
 	print '<tr>';
@@ -508,7 +513,7 @@ else {
 	print '</form>';
 
 	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Primes').'</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Primes').' <a class="export" href='.$_SERVER["PHP_SELF"].'?id='.$idUser.'&action=getCsv_4><img src='.dol_buildpath('listincsv/img/listincsv.png', 1).'></a></div></td></tr></tbody>';
 	print '</table>';
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
