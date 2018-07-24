@@ -4,6 +4,6 @@ CREATE TABLE llx_rh_historique
     fk_user INT NOT NULL,
     fk_element VARCHAR(255),
     value VARCHAR(255),
-    date_change DATE,
+    date_change TIMESTAMP,
     FOREIGN KEY (fk_user) REFERENCES llx_user(rowid)
 )
