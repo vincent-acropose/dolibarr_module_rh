@@ -11,6 +11,7 @@ class Rh extends CommonObject
 	public $table_habiliations='rh_hab';
 	public $table_entretiens='rh_ent';
 	public $table_primes='rh_prime';
+	public $table_historique='rh_historique';
 
 	public function __construct($db)
 	{
@@ -49,15 +50,22 @@ class Rh extends CommonObject
 
 		if (is_array($values)) {
 			$sql = 'UPDATE '.MAIN_DB_PREFIX.$this->table_element.' SET';
+			$old = [];
 
 			if ($values["salary"]) {
 				$sql .= ' salary="'.$values['salary'].'"';
+				if ($values["salary"] != $this->get("salary", $userId)->salary) {
+					$old['salary'] = $this->get("salary", $userId)->salary;
+				}
 			}
 			else {
 				$sql .= ' salary=NULL';
 			}
 			if ($values["salary_brut"]) {
 				$sql .= ', salary_brut="'.$values['salary_brut'].'"';
+				if ($values["salary_brut"] != $this->get("salary_brut", $userId)->salary_brut) {
+					$old['salary_brut'] = $this->get("salary_brut", $userId)->salary_brut;
+				}
 			}
 			else {
 				$sql .= ', salary_brut=NULL';
@@ -130,8 +138,31 @@ class Rh extends CommonObject
 		}
 
 		$result = $this->request($sql, 1);
+		if ($result && !empty($old)) {
+			foreach ($old as $key => $value) {
+				$this->setHistory($userId, $key, $value);
+			}
+		}
 		return $result;
 
+	}
+
+	public function setHistory($userId, $key, $value) {
+		$sql = "INSERT INTO ".MAIN_DB_PREFIX.$this->table_historique." (fk_user, fk_element, value, date_change) VALUES (".$userId.", '".$key."', '".$value."', NOW())";
+
+		$result = $this->request($sql, 1);
+		return $result;
+	}
+
+	public function getHistory($userId, $key) {
+		$sql = 'SELECT date_change, value FROM '.MAIN_DB_PREFIX.$this->table_historique.' WHERE fk_user='.(int)$userId." AND fk_element='".$key."' ORDER BY date_change DESC";
+		$result = $this->request($sql, 0, "*");
+		if ($result) {
+			return $result;
+		}
+		else {
+			return 0;
+		}
 	}
 
 	public function getMed($userId) {
@@ -331,7 +362,7 @@ class Rh extends CommonObject
 
 						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
 
-							$contains .= $newUser->login;
+							$contains .= $newUser->lastname." ".$newUser->firstname;
 
 							foreach ($listHab as $habName) {
 								$contains .= $this->get_last_hab($habName, $newUser->id);
@@ -350,14 +381,14 @@ class Rh extends CommonObject
 				break;
 
 			case '3':
-				$contains = "Trigramme;Date de la Visite;Commentaire\n";
+				$contains = "Collaborateur;Date de la Visite;Commentaire\n";
 
 				foreach ($usersRh as $userRh) {
 					if ($userRh['present'] == "Oui") {
 						$newUser->fetch($userRh['fk_user']);
 						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
 
-							$contains .= $newUser->login;
+							$contains .= $newUser->lastname." ".$newUser->firstname;
 							$visit = $this->getLastMed($newUser->id);
 
 							$contains .= ";".$visit->date_visit.";".$visit->commentaire."\n";
@@ -373,15 +404,45 @@ class Rh extends CommonObject
 				break;
 
 			case '4':
-				$contains = "Date d'attribution de la prime;Montant\n";
+				$newUser->fetch($userId);
+				$contains = "Collaborateur;Date d'attribution de la prime;Montant\n";
 
 				$primes = $this->getPrimes((int)$userId);
 
 				foreach ($primes as $prime) {
+					$contains .= $newUser->lastname." ".$newUser->firstname.";";
 					$contains .= $prime['date_prime'].";".$prime['montant']." €\n";
 				}
 
 				$f = fopen(DOL_DATA_ROOT."/rh/primes.csv", "w");
+				fwrite($f, $contains);
+				fclose($f);
+
+				break;
+
+			case '5':
+				$contains = "Collaborateur;Date d'attribution de la prime;Montant\n";
+
+				foreach ($usersRh as $userRh) {
+					if ($userRh['present'] == "Oui") {
+						$newUser->fetch($userRh['fk_user']);
+
+						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
+
+							$primes = $this->getPrimes($newUser->id);
+
+							foreach ($primes as $prime) {
+								$contains .= $newUser->lastname." ".$newUser->firstname.";";
+								$contains .= $prime['date_prime'].";".$prime["montant"]."\n";
+							}
+
+							$contains .= "\n";
+
+						}
+					}
+				}
+
+				$f = fopen(DOL_DATA_ROOT."/rh/allPrimes.csv", "w");
 				fwrite($f, $contains);
 				fclose($f);
 

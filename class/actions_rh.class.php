@@ -91,6 +91,7 @@ class Actionsrh
 		print '<th class="liste_titre" align=center><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_1><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des utilisateurs</a></th>';
 		print '<th class="liste_titre" align=center><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_2><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des habilitations</a></th>';
 		print '<th class="liste_titre" align=center><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_3><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des visites médicales</a></th>';
+		print '<th class="liste_titre" align=center><a href='.dol_buildpath('/rh/rh.php', 1).'?action=getCsv_5><img src="'.DOL_URL_ROOT.'/theme/common/mime/xls.png" /> Liste des primes</a></th>';
 		print '</tr>';
 
 		return 0;

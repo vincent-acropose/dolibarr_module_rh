@@ -25,7 +25,8 @@ years=ans
 ParamLabel=Habilitations
 ParamDesc=Liste des habilitations
 
-medicalVisites = Visites Médicales
-habilitations=Habilitations
-entretiens=Entretiens Annuels
-Primes=Primes
+medicalVisites = Visite Médicale
+habilitations=Habilitation
+entretiens=Entretien Annuel
+Primes=Prime
+NoHistorique=Aucun Historique trouvé

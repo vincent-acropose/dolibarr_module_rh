@@ -161,6 +161,12 @@ switch ($action) {
 		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=primes.csv");
 		break;
 
+	case 'getCsv_5':
+		$rhManager->makeCsv(5, $user);
+
+		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=allPrimes.csv");
+		break;
+
 }
 
 // Vue
@@ -270,12 +276,6 @@ else {
 	print '</tbody>';
 	print '</table>';
 
-	print '<div class="tabsAction">';
-	print '<div class="inline-block divButAction">';
-	print '<a class="butAction" href="'.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id.'&action=modify">'.$langs->trans('Modify').'</a>';
-	print '</div>';
-	print '</div>';
-
     print '</div>';
 
     print '<div class="fichehalfright">';
@@ -349,7 +349,236 @@ else {
 	print '</tbody>';
 	print '</table>';
 
+	print '<div class="tabsAction">';
+	print '<div class="inline-block divButAction">';
+	print '<a class="butAction" href="'.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id.'&action=modify">'.$langs->trans('Modify').'</a>';
 	print '</div>';
+	print '</div>';
+
+	print '</div>';
+
+	print "<div class='underbanner clearboth'></div>";
+
+	print '<div class="fichehalfleft">';
+	print '<table width="100%">';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('History').'</div></td></tr></tbody>';
+	print '</table>';
+
+	print '<table class="noborder" width="100%">';
+	print '<tbody>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Salary').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "salary");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('SalaryMonth').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "salary_brut");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Contrat').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "contrat");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Fonction').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "fonction");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Status').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "statut");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Classification').'</th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+	$infos = $rhManager->getHistory($idUser, "classification");
+	if ($infos->num_rows) {
+
+		foreach ($infos as $info) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($info['date_change']));
+			print '</td>';
+			print '<td>';
+			print $info['value'];
+			print '</td>';
+			print '</tr>';
+		}
+	}
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>'.$langs->trans('NoHistorique').'</td>';
+		print '</tr>';
+	}
+	print '</td>';
+	print '</tr>';
+
+	print '</tbody>';
+	print '</table>';
+	print '</div>';
+
+	print '<div class="fichehalfleft"><div class="ficheaddleft">';
+	print '<table width="100%">';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Primes').' <a class="export" href='.$_SERVER["PHP_SELF"].'?id='.$idUser.'&action=getCsv_4><img src='.dol_buildpath('listincsv/img/listincsv.png', 1).' width=20></a></div></td></tr></tbody>';
+	print '</table>';
+
+	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
+	print '<input name="action" value="new_prime" type="hidden"><table class="noborder" width="100%">';
+	print '<tbody>';
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="25%">Ajouter une prime</th>';
+	print '<th align="right"><input title="Date d\'attribution" id="date_prime" name="date_prime" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
+	print '<th align="right"><input type=text name=montant placeholder=Montant : ></th>';
+	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Date d\'attribution de la prime</th>';
+	print '<th class="liste_titre">Montant</th>';
+	print '<th align="right" colspan=2></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	if ($primes->num_rows) {
+
+		foreach ($primes as $prime) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($prime['date_prime']));
+			print '</td>';
+			print '<td>';
+			print $prime['montant']." €";
+			print '</td>';
+			print '<td align="right" colspan=2>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_prime&prime='.$prime['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
+			print '</tr>';
+		}
+	}
+
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>-- Aucune prime enregistrée --</td>';
+		print '</tr>';
+	}
+
+	print '</td>';
+	print '</tr>';
+	print '</tbody>';
+	print '</table>';
+	print '</form>';
+	print '</div></div>';
 
 	print '<table width="100%">';
 	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('medicalVisites').'</div></td></tr></tbody>';
@@ -513,58 +742,7 @@ else {
 	print '</form>';
 
 	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Primes').' <a class="export" href='.$_SERVER["PHP_SELF"].'?id='.$idUser.'&action=getCsv_4><img src='.dol_buildpath('listincsv/img/listincsv.png', 1).'></a></div></td></tr></tbody>';
-	print '</table>';
-
-	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
-	print '<input name="action" value="new_prime" type="hidden"><table class="noborder" width="100%">';
-	print '<tbody>';
-	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="25%">Ajouter une prime</th>';
-	print '<th align="right"><input title="Date d\'attribution" id="date_prime" name="date_prime" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
-	print '<th align="right"><input type=text name=montant placeholder=Montant : ></th>';
-	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
-	print '</tr>';
-	print '<tr class="oddeven">';
-
-	print '<tr class="liste_titre">';
-	print '<th class="liste_titre">Date d\'attribution de la prime</th>';
-	print '<th class="liste_titre">Montant</th>';
-	print '<th align="right" colspan=2></th>';
-	print '</tr>';
-	print '<tr class="oddeven">';
-
-	if ($primes->num_rows) {
-
-		foreach ($primes as $prime) {
-			print '<tr class="oddeven">';
-			print '<td>';
-			print date("d/m/Y", strtotime($prime['date_prime']));
-			print '</td>';
-			print '<td>';
-			print $prime['montant']." €";
-			print '</td>';
-			print '<td align="right" colspan=2>';
-			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_prime&prime='.$prime['rowid'].'">'.img_delete().'</a>';
-			print '</td>';
-			print '</tr>';
-		}
-	}
-
-	else {
-		print '<tr class="oddeven">';
-		print '<td colspan=4>-- Aucune prime enregistrée --</td>';
-		print '</tr>';
-	}
-
-	print '</td>';
-	print '</tr>';
-	print '</tbody>';
-	print '</table>';
-	print '</form>';
-
-	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Trainings').'</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Training').'</div></td></tr></tbody>';
 	print '</table>';
 
 	print '<table class="noborder" width="100%">';
