@@ -133,7 +133,7 @@ switch ($action) {
 		break;
 
 	case 'getCsv_3':
-		$rhManager->makeCsv(3, $user, $idUser);
+		$rhManager->makeCsv(3, $user);
 
 		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=visites.csv");
 		break;
@@ -330,7 +330,7 @@ else {
 	print '</div>';
 
 	print '<table width="100%">';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('medicalVisites').' <a class="export" href="'.$_SERVER["PHP_SELF"].'?action=getCsv_3&id='.$idUser.'"><img src="'.dol_buildpath('listincsv/img/listincsv.png', 1).'"></a></div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('medicalVisites').'</div></td></tr></tbody>';
 	print '</table>';
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';

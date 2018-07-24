@@ -140,6 +140,12 @@ class Rh extends CommonObject
 		return $result;
 	}
 
+	public function getLastMed($userId) {
+		$sql = "SELECT MAX(date_visit) AS 'date_visit', commentaire FROM ".MAIN_DB_PREFIX.$this->table_medicale." WHERE fk_user=".$userId." GROUP BY commentaire";
+		$result = $this->request($sql);
+		return $result;
+	}
+
 	public function getHabilitations($userId) {
 		$sql = "SELECT * FROM ".MAIN_DB_PREFIX.$this->table_habiliations." WHERE fk_user=".$userId." ORDER BY date_hab DESC";
 
@@ -322,11 +328,20 @@ class Rh extends CommonObject
 				break;
 
 			case '3':
-				$visites = $this->getMed($userId);
-				$contains = "Date de la Visite;Commentaire\n";
+				$contains = "Trigramme;Date de la Visite;Commentaire\n";
 
-				foreach ($visites as $visit) {
-					$contains .= $visit['date_visit'].";".$visit["commentaire"]."\n";
+				foreach ($usersRh as $userRh) {
+					if ($userRh['present'] == "Oui") {
+						$newUser->fetch($userRh['fk_user']);
+						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
+
+							$contains .= $newUser->login;
+							$visit = $this->getLastMed($newUser->id);
+
+							$contains .= ";".$visit->date_visit.";".$visit->commentaire."\n";
+
+						}
+					}
 				}
 
 				$f = fopen(DOL_DATA_ROOT."/rh/visites.csv", "w");
