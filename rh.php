@@ -32,6 +32,7 @@ elseif($object->array_options['options_prod_or_not'] == 2 && empty($user->rights
 }
 
 $langs->load('rh@rh');
+$langs->load('formation@formation');
 
 $action = GETPOST('action');
 
@@ -74,11 +75,15 @@ switch ($action) {
 
 		$rhManager->setMed($date, $commentaire, $idUser);
 
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
+
 	case 'del_med':
 		$med = GETPOST('med');
 		$rhManager->delMed($med);
 
 		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
 
 	case 'new_hab':
 		$numero = GETPOST('numero');
@@ -88,9 +93,15 @@ switch ($action) {
 
 		$rhManager->setHab($numero, $date, $datefin, $intitule, $idUser);
 
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
+
 	case 'del_hab':
 		$hab = GETPOST('hab');
 		$rhManager->delHab($hab);
+
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
 
 	case 'new_ent':
 		$date = GETPOST('date_ent');
@@ -98,23 +109,35 @@ switch ($action) {
 
 		$rhManager->setEnt($date, $commentaire, $idUser);
 
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
+
 	case 'del_ent':
 		$ent = GETPOST('ent');
 		$rhManager->delEnt($ent);
 
 		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 
+		break;
+
 	case 'getCsv_1':
-		$rhManager->makeCsv(1);
+		$rhManager->makeCsv(1, $user);
 
 		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=liste_utilisateurs.csv");
 		break;
 
 	case 'getCsv_2':
-		exit("2");
+		$rhManager->makeCsv(2, $user);
+
+		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=habilitations.csv");
 		break;
 
-	header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+	case 'getCsv_3':
+		$rhManager->makeCsv(3, $user, $idUser);
+
+		header("Location: ".DOL_URL_ROOT."/document.php?modulepart=rh&file=visites.csv");
+		break;
+
 }
 
 // Vue
@@ -307,7 +330,7 @@ else {
 	print '</div>';
 
 	print '<table width="100%">';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Visites médicales</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('medicalVisites').' <a class="export" href="'.$_SERVER["PHP_SELF"].'?action=getCsv_3&id='.$idUser.'"><img src="'.dol_buildpath('listincsv/img/listincsv.png', 1).'"></a></div></td></tr></tbody>';
 	print '</table>';
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
@@ -356,16 +379,16 @@ else {
 	print '</form>';
 
 	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Habilitations</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('habilitations').'</div></td></tr></tbody>';
 	print '</table>';
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
 	print '<input name="action" value="new_hab" type="hidden"><table class="noborder" width="100%">';
 	print '<tbody>';
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="25%">Ajouter une habilitation</th>';
+	print '<th class="liste_titre" width="15%">Ajouter une habilitation</th>';
 	print '<th align="right"><input type=text name=numero placeholder=Numéro : ></th>';
-	print '<th align="right"><input type=text name=intitule placeholder=Intitulé : ></th>';
+	print '<th align="right">'.$rhManager->getLabelHabilitations().'</th>';
 	print '<th align="right"><input title="Date d\'obtention de l\'habilitation" id="date_hab" name="date_hab" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
 	print '<th align="right"><input title="Date de fin de l\'habilitation" id="date_hab_fin" name="date_hab_fin" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
 	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
@@ -406,7 +429,7 @@ else {
 
 	else {
 		print '<tr class="oddeven">';
-		print '<td colspan=4>-- Aucune habilitation enregistrée --</td>';
+		print '<td colspan=7>-- Aucune habilitation enregistrée --</td>';
 		print '</tr>';
 	}
 
@@ -417,7 +440,7 @@ else {
 	print '</form>';
 
 	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Entretiens annuelles</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('entretiens').'</div></td></tr></tbody>';
 	print '</table>';
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
@@ -468,7 +491,7 @@ else {
 	print '</form>';
 
 	print '<table>';
-	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">Formations</div></td></tr></tbody>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Trainings').'</div></td></tr></tbody>';
 	print '</table>';
 
 	print '<table class="noborder" width="100%">';

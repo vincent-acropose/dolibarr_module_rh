@@ -21,3 +21,10 @@ habilitationlist=Liste des habilitations
 Address1=Adresse 1
 Address2=Adresse 2
 years=ans
+
+ParamLabel=Habilitations
+ParamDesc=Liste des habilitations
+
+medicalVisites = Visites Médicales
+habilitations=Habilitations
+entretiens=Entretiens Annuels

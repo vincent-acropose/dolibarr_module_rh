@@ -203,45 +203,133 @@ class Rh extends CommonObject
 		return $id;
 	}
 
-	public function makeCsv($type) {
+	public function getLabelHabilitations() {
+		$sql = "SELECT * FROM ".MAIN_DB_PREFIX."rh_hab_name";
+	    $habilitations = $this->request($sql, 0, "*");
+
+	    $value = "<select name=intitule>";
+
+	    foreach ($habilitations as $habilitation) {
+	        $value .= "<option value='".$habilitation['label']."'>".$habilitation['label']."</option>";
+	    }
+
+	    $value .= "</select>";
+	    return $value;
+	}
+
+	public function get_last_hab($label, $userId) {
+		$sql = "SELECT MAX(date_hab) AS 'date_hab', numero, date_fin FROM ".MAIN_DB_PREFIX.$this->table_habiliations." WHERE fk_user=".$userId." AND label = '".trim($label)."' GROUP BY numero, date_fin";
+		$result = $this->request($sql);
+
+		if ($result) {
+			$retour = ";".$result->numero.";".$result->date_hab.";".$result->date_fin;
+		}
+		else {
+			$retour = ";-;-;-";
+		}
+
+		return $retour;
+	}
+
+	public function makeCsv($type, $user, $userId="0") {
 		$sql = 'SELECT * FROM '.MAIN_DB_PREFIX.$this->table_element;
+
+
 		$usersRh = $this->request($sql, 0, "*");
 		$newUser = new User($this->db);
 		
 		switch ($type) {
 
 			case '1':
-				$contains = "Contrat;Nom;Prénom;Sexe;Adresse1;Adresse2;CP;Ville;Date d'embauche;Ancienneté;Fonction;Niveau;Status;Date de naissance;age\n";
+				$contains = "Contrat;Nom;Prénom;Sexe;Adresse1;Adresse2;CP;Ville;Date d'embauche;Date d'ancienneté;Ancienneté;Fonction;Niveau;Status;Date de naissance;age\n";
 				foreach ($usersRh as $userRh) {
 					if ($userRh['present'] == "Oui") {
 						$newUser->fetch($userRh['fk_user']);
 
-						$anciennete =  strtotime(date("Y-m-d")) - strtotime(date("Y-m-d", $newUser->dateemployment));
-						$jourAnciennete = (int)($anciennete/86400);
+						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
 
-						$age = strtotime(date("Y-m-d")) - strtotime(date("d/m/Y", strtotime($newUser->array_options['options_DDN'])));
-						$ageYear = (int)($age/31536000);
+							$anciennete =  strtotime(date("Y-m-d")) - strtotime($newUser->array_options['options_DDA']);
+							$anneeAnciennete = (int)($anciennete/31536000);
+							$jourAnciennete = (int)(($anciennete/86400)%365);
 
-						$contains .= $newUser->array_options['options_CONTRAT'];
-						$contains .= ";".$newUser->lastname;
-						$contains .= ";".$newUser->firstname;
-						$contains .= ";".$newUser->gender;
-						$contains .= ";".$userRh['address1'];
-						$contains .= ";".$userRh['address2'];
-						$contains .= ";".$userRh['zip'];
-						$contains .= ";".$userRh['city'];
-						$contains .= ";".date('d/m/Y', $newUser->dateemployment);
-						$contains .= ";".$jourAnciennete." jours";
-						$contains .= ";".$newUser->array_options['options_FONCTION'];
-						$contains .= ";".$newUser->array_options['options_NIVEAU'];
-						$contains .= ";".$newUser->array_options['options_STATUT'];
-						$contains .= ";".date("d/m/Y", strtotime($newUser->array_options['options_DDN']));
-						$contains .= ";".$ageYear." ans";
-						$contains .= "\n";
+							$age = strtotime(date("Y-m-d")) - strtotime(date("d/m/Y", strtotime($newUser->array_options['options_DDN'])));
+							$ageYear = (int)($age/31536000);
+							$contains .= $newUser->array_options['options_CONTRAT'];
+							$contains .= ";".$newUser->lastname;
+							$contains .= ";".$newUser->firstname;
+							$contains .= ";".$newUser->gender;
+							$contains .= ";".$userRh['address1'];
+							$contains .= ";".$userRh['address2'];
+							$contains .= ";".$userRh['zip'];
+							$contains .= ";".$userRh['city'];
+							$contains .= ";".date('d/m/Y', $newUser->dateemployment);
+							$contains .= ";".date("d/m/Y", strtotime($newUser->array_options['options_DDA']));
+							$contains .= ";".$anneeAnciennete." ans ".$jourAnciennete." jours";
+							$contains .= ";".$newUser->array_options['options_FONCTION'];
+							$contains .= ";".$newUser->array_options['options_NIVEAU'];
+							$contains .= ";".$newUser->array_options['options_STATUT'];
+							$contains .= ";".date("d/m/Y", strtotime($newUser->array_options['options_DDN']));
+							$contains .= ";".$ageYear." ans";
+							$contains .= "\n";
+
+						}
 					}
 				}
 
 				$f = fopen(DOL_DATA_ROOT."/rh/liste_utilisateurs.csv", "w");
+				fwrite($f, $contains);
+				fclose($f);
+
+				break;
+
+			case '2':
+				$contains = "Collaborateur";
+
+				$sql = "SELECT * FROM ".MAIN_DB_PREFIX."rh_hab_name";
+			    $habilitations = $this->request($sql, 0, "*");
+
+			    $listHab = [];
+			    $value = "<select name=intitule>";
+
+			    foreach ($habilitations as $habilitation) {
+			    	$contains .= ";numéro_".trim($habilitation['label']).";Date d'obtention;Date de fin de validité";
+			    	array_push($listHab, trim($habilitation['label']));			        
+			    }
+				$contains .= "\n";
+
+				foreach ($usersRh as $userRh) {
+					if ($userRh['present'] == "Oui") {
+						$newUser->fetch($userRh['fk_user']);
+
+						if (($newUser->array_options['options_prod_or_not'] == 1 && $user->rights->rh->production) or ($newUser->array_options['options_prod_or_not'] == 2 && $user->rights->rh->notProduction)) {
+
+							$contains .= $newUser->login;
+
+							foreach ($listHab as $habName) {
+								$contains .= $this->get_last_hab($habName, $newUser->id);
+							}
+
+							$contains .= "\n";
+
+						}
+					}
+				}
+
+				$f = fopen(DOL_DATA_ROOT."/rh/habilitations.csv", "w");
+				fwrite($f, $contains);
+				fclose($f);
+
+				break;
+
+			case '3':
+				$visites = $this->getMed($userId);
+				$contains = "Date de la Visite;Commentaire\n";
+
+				foreach ($visites as $visit) {
+					$contains .= $visit['date_visit'].";".$visit["commentaire"]."\n";
+				}
+
+				$f = fopen(DOL_DATA_ROOT."/rh/visites.csv", "w");
 				fwrite($f, $contains);
 				fclose($f);
 

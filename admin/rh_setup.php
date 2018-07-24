@@ -40,39 +40,49 @@ if (! $user->admin) {
     accessforbidden();
 }
 
+function clear_habilitations($db) {
+    $sql = "DELETE FROM ".MAIN_DB_PREFIX."rh_hab_name";
+    
+    $db->query($sql);
+}
+
+function get_habilitations($db) {
+    $sql = "SELECT * FROM ".MAIN_DB_PREFIX."rh_hab_name";
+    $habilitations = $db->query($sql);
+
+    $value = "";
+    foreach ($habilitations as $habilitation) {
+        $value .= $habilitation['rowid']." : ".$habilitation['label']."\n";
+    }
+
+    return $value;
+}
+
+function set_habilitation($db, $id, $value) {
+    $sql = "INSERT INTO ".MAIN_DB_PREFIX."rh_hab_name (rowid, label) VALUES (".$id.", '".trim($value)."')";
+
+    $db->query($sql);
+}
+
 // Parameters
 $action = GETPOST('action', 'alpha');
 
 /*
  * Actions
  */
-if (preg_match('/set_(.*)/',$action,$reg))
-{
-	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
-	{
-		header("Location: ".$_SERVER["PHP_SELF"]);
-		exit;
-	}
-	else
-	{
-		dol_print_error($db);
-	}
+if ($action == "set_habilitations") {
+    clear_habilitations($db);
+
+    $habilitations = GETPOST('habilitations');
+    $habilitations = explode("\n", $habilitations);
+    foreach ($habilitations as $habilitation) {
+        $habilitation = explode(":", $habilitation);
+        if ($habilitation[0] != "") {
+            set_habilitation($db, $habilitation[0], $habilitation[1]);
+        }
+    }   
 }
-	
-if (preg_match('/del_(.*)/',$action,$reg))
-{
-	$code=$reg[1];
-	if (dolibarr_del_const($db, $code, 0) > 0)
-	{
-		Header("Location: ".$_SERVER["PHP_SELF"]);
-		exit;
-	}
-	else
-	{
-		dol_print_error($db);
-	}
-}
+
 
 /*
  * View
@@ -103,21 +113,7 @@ print '<table class="noborder" width="100%">';
 
 _print_title("Parameters");
 
-// Example with a yes / no select
-// _print_on_off('CONSTNAME', 'ParamLabel' , 'ParamDesc');
-
-// Example with imput
-// _print_input_form_part('CONSTNAME', 'ParamLabel');
-
-// Example with color
-// _print_input_form_part('CONSTNAME', 'ParamLabel', 'ParamDesc', array('type'=>'color'),'input','ParamHelp');
-
-// Example with placeholder
-//_print_input_form_part('CONSTNAME','ParamLabel','ParamDesc',array('placeholder'=>'http://'),'input','ParamHelp');
-
-// Example with textarea
-//_print_input_form_part('CONSTNAME','ParamLabel','ParamDesc',array(),'textarea');
-
+_print_input_form_part('habilitations',$langs->trans('ParamLabel'),$langs->trans('ParamDesc'),array("value"=>get_habilitations($db), "cols"=>10, "rows"=>10),'textarea');
 
 print '</table>';
 
@@ -153,7 +149,7 @@ function _print_on_off($confkey, $title = false, $desc ='')
     print '<td align="center" width="300">';
     print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-    print '<input type="hidden" name="action" value="set_'.$confkey.'">';
+    print '<input type="hidden" name="action" value="set_habilitations">';
     print ajax_constantonoff($confkey);
     print '</form>';
     print '</td></tr>';
@@ -205,7 +201,7 @@ function _print_input_form_part($confkey, $title = false, $desc ='', $metas = ar
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="set_'.$confkey.'">';
     if($type=='textarea'){
-        print '<textarea '.$metascompil.'  >'.dol_htmlentities($conf->global->{$confkey}).'</textarea>';
+        print '<textarea '.$metascompil.'  >'.$metas['value'].'</textarea>';
     }
     else {
         print '<input '.$metascompil.'  />';
