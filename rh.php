@@ -41,6 +41,7 @@ $rhManager = new Rh($db);
 $medVisits = $rhManager->getMed($idUser);
 $habilitations = $rhManager->getHabilitations($idUser);
 $entretiens = $rhManager->getEntretiens($idUser);
+$primes = $rhManager->getPrimes($idUser);
 
 // Action
 switch ($action) {
@@ -115,6 +116,22 @@ switch ($action) {
 	case 'del_ent':
 		$ent = GETPOST('ent');
 		$rhManager->delEnt($ent);
+
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+
+		break;
+
+	case 'new_prime':
+		$date = GETPOST('date_prime');
+		$montant = GETPOST('montant');
+
+		$rhManager->setPrime($date, $montant, $idUser);
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+		break;
+
+	case 'del_prime':
+		$prime = GETPOST('prime');
+		$rhManager->delPrime($prime);
 
 		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
 
@@ -481,6 +498,57 @@ else {
 	else {
 		print '<tr class="oddeven">';
 		print '<td colspan=4>-- Aucun entretien enregistré --</td>';
+		print '</tr>';
+	}
+
+	print '</td>';
+	print '</tr>';
+	print '</tbody>';
+	print '</table>';
+	print '</form>';
+
+	print '<table>';
+	print '<tbody><tr><td class="nobordernopadding" valign="middle"><div class="titre">'.$langs->trans('Primes').'</div></td></tr></tbody>';
+	print '</table>';
+
+	print '<form action="' . $_SERVER["PHP_SELF"] . '?id='.$idUser.'" method=POST>';
+	print '<input name="action" value="new_prime" type="hidden"><table class="noborder" width="100%">';
+	print '<tbody>';
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre" width="25%">Ajouter une prime</th>';
+	print '<th align="right"><input title="Date d\'attribution" id="date_prime" name="date_prime" class="maxwidth75" maxlength="11" value="2018-08-01" type="text"></th>';
+	print '<th align="right"><input type=text name=montant placeholder=Montant : ></th>';
+	print '<th align="right"><input type=submit class=button value=Ajouter></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	print '<tr class="liste_titre">';
+	print '<th class="liste_titre">Date d\'attribution de la prime</th>';
+	print '<th class="liste_titre">Montant</th>';
+	print '<th align="right" colspan=2></th>';
+	print '</tr>';
+	print '<tr class="oddeven">';
+
+	if ($primes->num_rows) {
+
+		foreach ($primes as $prime) {
+			print '<tr class="oddeven">';
+			print '<td>';
+			print date("d/m/Y", strtotime($prime['date_prime']));
+			print '</td>';
+			print '<td>';
+			print $prime['montant']." €";
+			print '</td>';
+			print '<td align="right" colspan=2>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_prime&prime='.$prime['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
+			print '</tr>';
+		}
+	}
+
+	else {
+		print '<tr class="oddeven">';
+		print '<td colspan=4>-- Aucune prime enregistrée --</td>';
 		print '</tr>';
 	}
 
