@@ -155,7 +155,7 @@ class Rh extends CommonObject
 	}
 
 	public function getHistory($userId, $key) {
-		$sql = 'SELECT date_change, value FROM '.MAIN_DB_PREFIX.$this->table_historique.' WHERE fk_user='.(int)$userId." AND fk_element='".$key."' ORDER BY date_change DESC";
+		$sql = 'SELECT rowid, date_change, value FROM '.MAIN_DB_PREFIX.$this->table_historique.' WHERE fk_user='.(int)$userId." AND fk_element='".$key."' ORDER BY date_change DESC";
 		$result = $this->request($sql, 0, "*");
 		if ($result) {
 			return $result;
@@ -163,6 +163,13 @@ class Rh extends CommonObject
 		else {
 			return 0;
 		}
+	}
+
+	public function delHisto($id) {
+		$sql = "DELETE FROM ".MAIN_DB_PREFIX.$this->table_historique." WHERE rowid=".$id;
+		$result = $this->request($sql, 1);
+
+		return $result;
 	}
 
 	public function getMed($userId) {

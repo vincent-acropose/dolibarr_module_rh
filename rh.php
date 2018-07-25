@@ -137,6 +137,14 @@ switch ($action) {
 
 		break;
 
+	case 'del_histo':
+		$histo = GETPOST('histo');
+		$rhManager->delHisto($histo);
+
+		header('Location: '.dol_buildpath('/rh/rh.php', 1).'?id='.$object->id);
+
+		break;
+
 	case 'getCsv_1':
 		$rhManager->makeCsv(1, $user);
 
@@ -368,7 +376,7 @@ else {
 	print '<tbody>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Salary').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('Salary').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "salary");
@@ -382,6 +390,9 @@ else {
 			print '<td>';
 			print $info['value'];
 			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}
@@ -394,7 +405,7 @@ else {
 	print '</tr>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('SalaryMonth').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('SalaryMonth').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "salary_brut");
@@ -408,6 +419,9 @@ else {
 			print '<td>';
 			print $info['value'];
 			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}
@@ -420,7 +434,7 @@ else {
 	print '</tr>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Contrat').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('Contrat').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "contrat");
@@ -434,6 +448,9 @@ else {
 			print '<td>';
 			print $info['value'];
 			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}
@@ -446,7 +463,7 @@ else {
 	print '</tr>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Fonction').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('Fonction').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "fonction");
@@ -460,6 +477,9 @@ else {
 			print '<td>';
 			print $info['value'];
 			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}
@@ -472,7 +492,7 @@ else {
 	print '</tr>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Status').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('Status').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "statut");
@@ -486,6 +506,9 @@ else {
 			print '<td>';
 			print $info['value'];
 			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}
@@ -498,7 +521,7 @@ else {
 	print '</tr>';
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre" width="100%" align=center colspan=2>'.$langs->trans('Classification').'</th>';
+	print '<th class="liste_titre" width="100%" align=center colspan=3>'.$langs->trans('Classification').'</th>';
 	print '</tr>';
 	print '<tr class="oddeven">';
 	$infos = $rhManager->getHistory($idUser, "classification");
@@ -511,6 +534,9 @@ else {
 			print '</td>';
 			print '<td>';
 			print $info['value'];
+			print '</td>';
+			print '<td align=right>';
+			print '<a href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&action=del_histo&histo='.$info['rowid'].'">'.img_delete().'</a>';
 			print '</td>';
 			print '</tr>';
 		}
