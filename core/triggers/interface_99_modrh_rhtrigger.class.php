@@ -118,16 +118,16 @@ class Interfacerhtrigger
         // Users
         if ($action == 'USER_MODIFY') {
             $rhManager = new Rh($this->db);
-            if ($object->array_options['options_NIVEAU'] != $object->oldcopy->array_options['options_NIVEAU']) {
+            if ($object->array_options['options_NIVEAU'] != $object->oldcopy->array_options['options_NIVEAU'] && $object->oldcopy->array_options['options_NIVEAU']) {
                 $rhManager->setHistory($user->id, "classification", $object->oldcopy->array_options['options_NIVEAU']);
             }
-            if ($object->array_options['options_CONTRAT'] != $object->oldcopy->array_options['options_CONTRAT']) {
+            if ($object->array_options['options_CONTRAT'] != $object->oldcopy->array_options['options_CONTRAT'] && $object->oldcopy->array_options['options_CONTRAT']) {
                 $rhManager->setHistory($user->id, "contrat", $object->oldcopy->array_options['options_CONTRAT']);
             }
-            if ($object->array_options['options_FONCTION'] != $object->oldcopy->array_options['options_FONCTION']) {
+            if ($object->array_options['options_FONCTION'] != $object->oldcopy->array_options['options_FONCTION'] && $object->oldcopy->array_options['options_FONCTION']) {
                 $rhManager->setHistory($user->id, "fonction", $object->oldcopy->array_options['options_FONCTION']);
             }
-            if ($object->array_options['options_STATUT'] != $object->oldcopy->array_options['options_STATUT']) {
+            if ($object->array_options['options_STATUT'] != $object->oldcopy->array_options['options_STATUT'] && $object->oldcopy->array_options['options_STATUT']) {
                 $rhManager->setHistory($user->id, "statut", $object->oldcopy->array_options['options_STATUT']);
             }
         } 

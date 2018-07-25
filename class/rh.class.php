@@ -54,7 +54,7 @@ class Rh extends CommonObject
 
 			if ($values["salary"]) {
 				$sql .= ' salary="'.$values['salary'].'"';
-				if ($values["salary"] != $this->get("salary", $userId)->salary) {
+				if ($values["salary"] != $this->get("salary", $userId)->salary && $this->get("salary", $userId)->salary) {
 					$old['salary'] = $this->get("salary", $userId)->salary;
 				}
 			}
@@ -63,7 +63,7 @@ class Rh extends CommonObject
 			}
 			if ($values["salary_brut"]) {
 				$sql .= ', salary_brut="'.$values['salary_brut'].'"';
-				if ($values["salary_brut"] != $this->get("salary_brut", $userId)->salary_brut) {
+				if ($values["salary_brut"] != $this->get("salary_brut", $userId)->salary_brut && $this->get("salary_brut", $userId)->salary_brut) {
 					$old['salary_brut'] = $this->get("salary_brut", $userId)->salary_brut;
 				}
 			}
